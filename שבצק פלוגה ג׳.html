@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>רשימת אנשים</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+```
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #e0e0e0;
+    }
+
+    .container {
+        max-width: 100%;
+        margin: 0 auto;
+        background: rgba(30, 30, 50, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid rgba(100, 100, 150, 0.2);
+    }
+
+    .header {
+        background: linear-gradient(45deg, #2c3e50, #34495e);
+        color: #ecf0f1;
+        padding: 25px 20px;
+        text-align: center;
+        border-bottom: 2px solid rgba(100, 100, 150, 0.3);
+    }
+
+    .header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .controls {
+        padding: 20px;
+        background: rgba(102, 126, 234, 0.05);
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .filter-section {
+        margin-bottom: 20px;
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    select, input, button {
+        padding: 12px 16px;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    select, input {
+        flex: 1;
+        min-width: 120px;
+        background: white;
+    }
+
+    select:focus, input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+    }
+
+    .btn-add {
+        width: 100%;
+        background: linear-gradient(45deg, #11998e, #38ef7d);
+        margin-top: 10px;
+        font-size: 18px;
+    }
+
+    .btn-add:hover {
+        box-shadow: 0 8px 20px rgba(17, 153, 142, 0.3);
+    }
+
+    .btn-delete {
+        background: linear-gradient(45deg, #ff416c, #ff4757);
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+
+    .btn-delete:hover {
+        box-shadow: 0 6px 15px rgba(255, 65, 108, 0.4);
+    }
+
+    .table-container {
+        overflow-x: auto;
+        padding: 0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(30, 30, 50, 0.9);
+    }
+
+    th {
+        background: linear-gradient(45deg, #2c3e50, #34495e);
+        color: #ecf0f1;
+        padding: 15px 10px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 14px;
+        border-bottom: 3px solid rgba(100, 100, 150, 0.3);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    td {
+        padding: 15px 10px;
+        text-align: center;
+        border-bottom: 1px solid rgba(100, 100, 150, 0.1);
+        transition: all 0.3s ease;
+        vertical-align: middle;
+        font-size: 14px;
+        color: #e0e0e0;
+        background: rgba(30, 30, 50, 0.9);
+    }
+
+    tr:hover td {
+        background: rgba(52, 73, 94, 0.3);
+    }
+
+    .name-cell {
+        font-weight: 700;
+        color: #ecf0f1;
+        font-size: 16px;
+    }
+
+    .phone-link {
+        color: #5dade2;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: rgba(93, 173, 226, 0.2);
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .phone-link:hover {
+        background: rgba(93, 173, 226, 0.3);
+        transform: scale(1.05);
+    }
+
+    .constraint-cell {
+        color: #bdc3c7;
+        font-style: italic;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.3s ease;
+    }
+
+    .modal h2 {
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group input, .form-group select {
+        width: 100%;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 30px;
+    }
+
+    .btn-cancel {
+        background: #6c757d;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 40px 20px;
+        color: #666;
+        font-style: italic;
+    }
+
+    .delete-confirmation {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .delete-confirmation p {
+        margin-bottom: 20px;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .person-name-highlight {
+        font-weight: 700;
+        color: #ff416c;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+        from { 
+            opacity: 0;
+            transform: translate(-50%, -60%);
+        }
+        to { 
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    @media (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+        
+        .filter-row {
+            flex-direction: column;
+        }
+        
+        select, input, button {
+            width: 100%;
+        }
+
+        th, td {
+            padding: 10px 5px;
+            font-size: 12px;
+        }
+
+        .name-cell {
+            font-size: 14px;
+        }
+
+        .phone-link {
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+
+        .btn-delete {
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>גדוד 1891</h1>
+            <p>פלוגה ג׳</p>
+        </div>
+
+```
+    <div class="controls">
+        <div class="filter-section">
+            <div class="filter-row">
+                <select id="roleFilter">
+                    <option value="">כל התפקידים</option>
+                </select>
+                <select id="departmentFilter">
+                    <option value="">כל המחלקות</option>
+                </select>
+                <button class="btn" onclick="clearFilters()">נקה סינונים</button>
+            </div>
+        </div>
+        <button class="btn btn-add" onclick="openAddModal()">➕ הוסף איש צוות חדש</button>
+    </div>
+    
+    <div class="table-container">
+        <table id="peopleTable">
+            <thead>
+                <tr>
+                    <th>שם</th>
+                    <th>תפקיד</th>
+                    <th>אילוץ</th>
+                    <th>מחלקה</th>
+                    <th>טלפון</th>
+                    <th>פעולות</th>
+                </tr>
+            </thead>
+            <tbody id="peopleTableBody">
+                <!-- People will be displayed here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Person Modal -->
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <h2>הוספת איש צוות חדש</h2>
+        <form id="addPersonForm">
+            <div class="form-group">
+                <label for="personName">שם:</label>
+                <input type="text" id="personName" required>
+            </div>
+            <div class="form-group">
+                <label for="personRole">תפקיד:</label>
+                <input type="text" id="personRole" required>
+            </div>
+            <div class="form-group">
+                <label for="personConstraint">אילוץ:</label>
+                <input type="text" id="personConstraint">
+            </div>
+            <div class="form-group">
+                <label for="personDepartment">מחלקה:</label>
+                <input type="text" id="personDepartment" required>
+            </div>
+            <div class="form-group">
+                <label for="personPhone">טלפון:</label>
+                <input type="tel" id="personPhone" required placeholder="050-1234567">
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-cancel" onclick="closeAddModal()">ביטול</button>
+                <button type="submit" class="btn">הוסף</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="delete-confirmation">
+            <h2>אישור מחיקה</h2>
+            <p>האם אתה בטוח שברצונך למחוק את <span class="person-name-highlight" id="personToDelete"></span>?</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-cancel" onclick="closeDeleteModal()">ביטול</button>
+                <button type="button" class="btn btn-delete" onclick="confirmDelete()">מחק</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sample data
+    let people = [
+        { 
+            id: 1,
+            name: "יוסי כהן", 
+            role: "מנהל פרויקט", 
+            constraint: "זמין עד 17:00", 
+            department: "פיתוח",
+            phone: "050-1234567"
+        },
+        { 
+            id: 2,
+            name: "שרה לוי", 
+            role: "מפתחת", 
+            constraint: "לא זמינה בימי ג'", 
+            department: "פיתוח",
+            phone: "052-9876543"
+        },
+        { 
+            id: 3,
+            name: "דוד אברהם", 
+            role: "מעצב UI/UX", 
+            constraint: "עבודה מהבית", 
+            department: "עיצוב",
+            phone: "054-5555555"
+        },
+        { 
+            id: 4,
+            name: "מיכל דוד", 
+            role: "בודקת תוכנה", 
+            constraint: "משרה חלקית", 
+            department: "QA",
+            phone: "053-1111111"
+        },
+        { 
+            id: 5,
+            name: "אבי שמש", 
+            role: "מנהל צוות", 
+            constraint: "זמין תמיד", 
+            department: "ניהול",
+            phone: "050-7777777"
+        },
+        { 
+            id: 6,
+            name: "רחל גולד", 
+            role: "מנתחת מערכות", 
+            constraint: "לא זמינה בבוקר", 
+            department: "ניהול",
+            phone: "052-3333333"
+        }
+    ];
+
+    let nextId = 7;
+    let personToDeleteId = null;
+
+    function displayPeople(peopleToShow = people) {
+        const tableBody = document.getElementById('peopleTableBody');
+        
+        if (peopleToShow.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="no-results">לא נמצאו תוצאות מתאימות</td></tr>';
+            return;
+        }
+        
+        tableBody.innerHTML = peopleToShow.map(person => `
+            <tr>
+                <td class="name-cell">${person.name}</td>
+                <td>${person.role}</td>
+                <td class="constraint-cell">${person.constraint || 'ללא אילוצים'}</td>
+                <td>${person.department}</td>
+                <td>
+                    <a href="tel:${person.phone}" class="phone-link">
+                        📞 ${person.phone}
+                    </a>
+                </td>
+                <td>
+                    <button class="btn btn-delete" onclick="openDeleteModal(${person.id}, '${person.name}')">
+                        🗑️ מחק
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function updateFilters() {
+        const roles = [...new Set(people.map(p => p.role))].sort();
+        const departments = [...new Set(people.map(p => p.department))].sort();
+        
+        const roleFilter = document.getElementById('roleFilter');
+        const departmentFilter = document.getElementById('departmentFilter');
+        
+        roleFilter.innerHTML = '<option value="">כל התפקידים</option>' + 
+            roles.map(role => `<option value="${role}">${role}</option>`).join('');
+        
+        departmentFilter.innerHTML = '<option value="">כל המחלקות</option>' + 
+            departments.map(dept => `<option value="${dept}">${dept}</option>`).join('');
+    }
+
+    function filterPeople() {
+        const roleFilter = document.getElementById('roleFilter').value;
+        const departmentFilter = document.getElementById('departmentFilter').value;
+        
+        let filtered = people;
+        
+        if (roleFilter) {
+            filtered = filtered.filter(person => person.role === roleFilter);
+        }
+        
+        if (departmentFilter) {
+            filtered = filtered.filter(person => person.department === departmentFilter);
+        }
+        
+        displayPeople(filtered);
+    }
+
+    function clearFilters() {
+        document.getElementById('roleFilter').value = '';
+        document.getElementById('departmentFilter').value = '';
+        displayPeople();
+    }
+
+    function openAddModal() {
+        document.getElementById('addModal').style.display = 'block';
+    }
+
+    function closeAddModal() {
+        document.getElementById('addModal').style.display = 'none';
+        document.getElementById('addPersonForm').reset();
+    }
+
+    function openDeleteModal(id, name) {
+        personToDeleteId = id;
+        document.getElementById('personToDelete').textContent = name;
+        document.getElementById('deleteModal').style.display = 'block';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+        personToDeleteId = null;
+    }
+
+    function confirmDelete() {
+        if (personToDeleteId) {
+            people = people.filter(person => person.id !== personToDeleteId);
+            updateFilters();
+            displayPeople();
+            closeDeleteModal();
+        }
+    }
+
+    // Event listeners
+    document.getElementById('roleFilter').addEventListener('change', filterPeople);
+    document.getElementById('departmentFilter').addEventListener('change', filterPeople);
+
+    document.getElementById('addPersonForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const newPerson = {
+            id: nextId++,
+            name: document.getElementById('personName').value,
+            role: document.getElementById('personRole').value,
+            constraint: document.getElementById('personConstraint').value,
+            department: document.getElementById('personDepartment').value,
+            phone: document.getElementById('personPhone').value
+        };
+        
+        people.push(newPerson);
+        updateFilters();
+        displayPeople();
+        closeAddModal();
+    });
+
+    // Close modals when clicking outside
+    document.getElementById('addModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAddModal();
+        }
+    });
+
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // Initialize
+    updateFilters();
+    displayPeople();
+</script>
+```
+
+</body>
+</html>
